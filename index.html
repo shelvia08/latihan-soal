@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan Soal SNBT PK PM</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #008489; margin-bottom: 5px; font-size: 24px; }
+        .header p { color: #444; font-size: 18px; margin-top: 5px; }
+        
+        .card { border: 1.5px solid #a2d9db; border-radius: 10px; margin-bottom: 25px; overflow: hidden; }
+        .card-header { background-color: #e0f4f5; padding: 12px 15px; font-weight: bold; color: #008489; border-bottom: 1.5px solid #a2d9db; text-transform: uppercase; }
+        .card-body { padding: 20px; }
+        
+        ul { padding-left: 20px; line-height: 1.8; margin: 0; }
+        .form-group { display: flex; align-items: center; }
+        .form-group label { width: 80px; font-weight: bold; color: #008489; }
+        .form-group input[type="text"] { flex: 1; padding: 12px; border: 1.5px solid #ddd; border-radius: 6px; outline: none; font-size: 14px; }
+        
+        #timerDisplay { font-size: 20px; font-weight: bold; color: #e74c3c; text-align: center; margin-bottom: 20px; background: #fdf2f2; padding: 10px; border-radius: 8px; border: 1px solid #fab1a0; position: sticky; top: 10px; z-index: 100; }
+        
+        .btn-start, .btn-submit { width: 100%; padding: 15px; background-color: #008489; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 10px; }
+        .btn-start:hover { background-color: #006a6e; transform: translateY(-2px); }
+
+        .question-item { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-weight: bold; margin-bottom: 15px; display: block; }
+        .options-list { list-style: none; padding: 0; }
+        .option-item { margin-bottom: 8px; padding: 12px; border: 1px solid #eee; border-radius: 8px; cursor: pointer; display: flex; align-items: center; transition: 0.2s; }
+        .option-item:hover { background-color: #f0fafa; border-color: #a2d9db; }
+        .option-item input { margin-right: 15px; cursor: pointer; }
+
+        #quizSection { display: none; }
+        #landingSection { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="landingSection">
+        <div class="header">
+            <h1>Latihan Soal SNBT PK PM</h1>
+            <p><b>Pengetahuan Kuantitatif - Latihan Aljabar</b></p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">PERATURAN UJIAN</div>
+            <div class="card-body">
+                <ul>
+                    <li>Terdapat <b>10 soal Pilihan Ganda</b>.</li>
+                    <li>Waktu pengerjaan: <b>10 menit</b>.</li>
+                    <li>Waktu berjalan otomatis setelah tombol "Mulai" ditekan.</li>
+                    <li>Gunakan kertas buram untuk perhitungan manual.</li>
+                    <li><b>Dilarang menggunakan bantuan AI</b> atau alat bantu lainnya.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">NAMA LENGKAP</div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Nama :</label>
+                    <input type="text" id="userName" placeholder="Masukkan nama lengkap Anda...">
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-start" onclick="startQuiz()">MULAI SEKARANG</button>
+    </div>
+
+    <div id="quizSection">
+        <div id="timerDisplay">Sisa Waktu: <span id="time">10:00</span></div>
+        
+        <div class="card">
+            <div class="card-header">Lembar Soal Latihan Aljabar</div>
+            <div class="card-body" id="questionsContainer">
+                </div>
+        </div>
+        
+        <button class="btn-submit" onclick="finishQuiz()">SELESAI & KIRIM JAWABAN</button>
+    </div>
+</div>
+
+<script>
+    // Data soal dari dokumen Soal Kuis UTBK PK.pdf
+    const quizData = [
+        { q: "Jika f(x) = 2x - 3 dan g(x) = x² + 1, maka (g
