@@ -11,9 +11,10 @@
         .card { border: 1.5px solid #a2d9db; border-radius: 10px; margin-bottom: 20px; padding: 15px; }
         #timerDisplay { font-size: 20px; font-weight: bold; color: #e74c3c; text-align: center; margin-bottom: 15px; }
         .btn { width: 100%; padding: 15px; background: #008489; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .btn:hover { background: #006a6e; }
         #quizSection { display: none; }
-        .option { display: block; padding: 10px; border: 1px solid #eee; margin-top: 5px; border-radius: 5px; cursor: pointer; }
-        .option:hover { background: #f0fafa; }
+        .option { display: block; padding: 10px; border: 1px solid #eee; margin-top: 5px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        .option:hover { background: #f0fafa; border-color: #008489; }
     </style>
 </head>
 <body>
@@ -29,7 +30,7 @@
             <ul>
                 <li>Terdapat 10 soal pilihan ganda.</li>
                 <li>Waktu pengerjaan: 10 menit.</li>
-                <li>Data Anda akan otomatis tersimpan setelah selesai.</li>
+                <li>Skor akhir akan muncul setelah Anda menekan tombol selesai.</li>
             </ul>
         </div>
         <div class="card">
@@ -42,26 +43,29 @@
     <div id="quizSection">
         <div id="timerDisplay">Sisa Waktu: <span id="time">10:00</span></div>
         <div id="isiSoal"></div>
-        <button id="btnSelesai" class="btn" onclick="kirimData()">SELESAI & KIRIM</button>
+        <button id="btnSelesai" class="btn" onclick="hitungDanKirim()">SELESAI & KIRIM JAWABAN</button>
     </div>
 </div>
 
 <script>
-    // MASUKKAN URL ANDA DI SINI
+    // URL Web App Google Apps Script Anda
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyABO4MOAUFub7ZcGcHGKUeHE0_KhstsJMpB83b8nDETJy0-2XYyTL4dzKlFZqNz8cclw/exec';
 
+    // Data soal dan kunci jawaban (index: 0=A, 1=B, 2=C, 3=D)
     const soalData = [
-        { q: "Jika f(x) = 2x - 3 dan g(x) = x² + 1, maka (g ∘ f)(2) = ...", a: ["1", "2", "3", "5"] },
-        { q: "Pola bilangan: 3, 7, 15, 31,... Bilangan selanjutnya adalah...", a: ["45", "56", "63", "65"] },
-        { q: "Jika 3^x = 81 maka nilai dari x² - 2x = ...", a: ["4", "8", "12", "16"] },
-        { q: "Peluang munculnya mata dadu bilangan prima pada satu kali lemparan adalah...", a: ["1/6", "1/3", "1/2", "2/3"] },
-        { q: "Rata-rata 5 bilangan adalah 10. Jika satu bilangan dikeluarkan, rata-ratanya jadi 11. Bilangan itu adalah...", a: ["4", "6", "8", "10"] },
-        { q: "Jika a + b = 5 dan ab = 6, maka nilai dari a² + b² adalah...", a: ["11", "13", "15", "25"] },
-        { q: "Harga 3kg mangga & 2kg apel Rp65.000. Jika 1kg mangga Rp15.000, harga 1kg apel adalah...", a: ["Rp10.000", "Rp12.000", "Rp15.000", "Rp20.000"] },
-        { q: "Jika x : y = 3 : 4 dan x + y = 28, maka nilai y - x = ...", a: ["2", "4", "6", "8"] },
-        { q: "Segitiga siku-siku hipotenusa 13cm dan sisi tegak 5cm. Luasnya adalah...", a: ["30 cm²", "60 cm²", "32,5 cm²", "15 cm²"] },
-        { q: "Himpunan penyelesaian dari |x - 5| = 2 adalah...", a: ["{3, 7}", "{2, 5}", "{3, 5}", "{5, 7}"] }
+        { q: "Jika $f(x) = 2x - 3$ dan $g(x) = x^2 + 1$, maka $(g \circ f)(2) = ...$", a: ["1", "2", "3", "5"], k: 1 },
+        { q: "Pola bilangan: 3, 7, 15, 31,... Bilangan selanjutnya adalah...", a: ["45", "56", "63", "65"], k: 2 },
+        { q: "Jika $3^x = 81$ maka nilai dari $x^2 - 2x = ...$", a: ["4", "8", "12", "16"], k: 1 },
+        { q: "Peluang munculnya mata dadu bilangan prima pada satu kali lemparan adalah...", a: ["1/6", "1/3", "1/2", "2/3"], k: 2 },
+        { q: "Rata-rata 5 bilangan adalah 10. Jika satu bilangan dikeluarkan, rata-ratanya jadi 11. Bilangan itu adalah...", a: ["4", "6", "8", "10"], k: 1 },
+        { q: "Jika $a + b = 5$ dan $ab = 6$, maka nilai dari $a^2 + b^2$ adalah...", a: ["11", "13", "15", "25"], k: 1 },
+        { q: "Harga 3kg mangga & 2kg apel Rp65.000. Jika 1kg mangga Rp15.000, maka harga 1kg apel adalah...", a: ["Rp10.000", "Rp12.000", "Rp15.000", "Rp20.000"], k: 0 },
+        { q: "Jika $x : y = 3 : 4$ dan $x + y = 28$, maka nilai $y - x = ...$", a: ["2", "4", "6", "8"], k: 1 },
+        { q: "Segitiga siku-siku hipotenusa 13cm dan sisi tegak 5cm. Luasnya adalah...", a: ["30 cm²", "60 cm²", "32,5 cm²", "15 cm²"], k: 0 },
+        { q: "Himpunan penyelesaian dari $|x - 5| = 2$ adalah...", a: ["{3, 7}", "{2, 5}", "{3, 5}", "{5, 7}"], k: 0 }
     ];
+
+    let timer;
 
     function mulaiKuis() {
         const nama = document.getElementById('userName').value;
@@ -74,47 +78,61 @@
         soalData.forEach((s, i) => {
             html += `<div class='card'><b>${i+1}. ${s.q}</b><br>`;
             s.a.forEach((opt, idx) => {
-                html += `<label class='option'><input type='radio' name='q${i}' value='${opt}'> ${String.fromCharCode(65+idx)}. ${opt}</label>`;
+                html += `<label class='option'><input type='radio' name='q${i}' value='${idx}'> ${String.fromCharCode(65+idx)}. ${opt}</label>`;
             });
             html += `</div>`;
         });
         document.getElementById('isiSoal').innerHTML = html;
 
         let timeLeft = 600;
-        const timer = setInterval(() => {
+        timer = setInterval(() => {
             timeLeft--;
             let min = Math.floor(timeLeft / 60);
             let sec = timeLeft % 60;
             document.getElementById('time').innerText = `${min}:${sec < 10 ? '0'+sec : sec}`;
-            if (timeLeft <= 0) { clearInterval(timer); kirimData(); }
+            if (timeLeft <= 0) { clearInterval(timer); hitungDanKirim(); }
         }, 1000);
     }
 
-    function kirimData() {
+    function hitungDanKirim() {
+        clearInterval(timer);
         const nama = document.getElementById('userName').value;
+        let skorBenar = 0;
+
+        // Hitung skor
+        soalData.forEach((s, i) => {
+            const rbg = document.getElementsByName('q' + i);
+            for (let rb of rbg) {
+                if (rb.checked && parseInt(rb.value) === s.k) {
+                    skorBenar++;
+                }
+            }
+        });
+
+        const totalSkor = (skorBenar / soalData.length) * 100;
         const btn = document.getElementById('btnSelesai');
         btn.innerText = "Mengirim...";
         btn.disabled = true;
 
         const dataKuis = {
             nama: nama,
-            skor: "Selesai",
-            jawaban: "Terkirim dari GitHub"
+            skor: totalSkor + "/100",
+            jawaban: "Benar: " + skorBenar + " dari " + soalData.length
         };
 
+        // Kirim ke Google Sheets
         fetch(scriptURL, { 
             method: 'POST', 
             body: JSON.stringify(dataKuis)
         })
         .then(() => {
-            alert("Terima kasih " + nama + "! Data Anda telah masuk ke Google Sheets.");
+            alert("Selesai! Skor Anda: " + totalSkor + "\nJawaban Anda telah tersimpan di Google Sheets.");
             location.reload();
         })
         .catch(error => {
             console.error('Error!', error.message);
-            alert("Terjadi kesalahan saat mengirim data.");
-            btn.disabled = false;
-            btn.innerText = "SELESAI & KIRIM";
+            alert("Skor Anda: " + totalSkor + "\n(Gagal mengirim ke Sheets, cek koneksi)");
+            location.reload();
         });
     }
 </script>
